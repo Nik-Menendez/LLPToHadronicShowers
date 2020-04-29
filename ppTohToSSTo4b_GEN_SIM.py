@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: LLPToHadronicShowers/Generator/python/ppTohToSS1SS2_SS1Tobb_SS2Toveve.py --fileout file:step1.root --mc --eventcontent FEVTDEBUG,LHE --datatier GEN-SIM,LHE --conditions auto:phase1_2021_realistic --beamspot Run3RoundOptics25ns13TeVLowSigmaZ --step LHE,GEN,SIM --geometry DB:Extended --era Run3 --python_filename ppTohToSS1SS2_SS1Tobb_SS2Toveve_GEN_SIM.py --no_exec -n 10
+# with command line options: LLPToHadronicShowers/Generator/python/ppTohToSSTo4b.py --fileout file:step1.root --mc --eventcontent FEVTDEBUG,LHE --datatier GEN-SIM,LHE --conditions auto:phase1_2021_realistic --beamspot Run3RoundOptics25ns13TeVLowSigmaZ --step LHE,GEN,SIM --geometry DB:Extended --era Run3 --python_filename ppTohToSSTo4b_GEN_SIM.py --no_exec -n 10
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run3_cff import Run3
@@ -38,7 +38,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('LLPToHadronicShowers/Generator/python/ppTohToSS1SS2_SS1Tobb_SS2Toveve.py nevts:10'),
+    annotation = cms.untracked.string('LLPToHadronicShowers/Generator/python/ppTohToSSTo4b.py nevts:10'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )

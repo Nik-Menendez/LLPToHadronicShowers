@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step2.py --filein file:step1.root --fileout file:step2.root --mc --eventcontent FEVTDEBUG --datatier GEN-SIM-DIGI-L1 --conditions auto:phase1_2021_realistic --step DIGI:pdigi_valid,L1 --geometry DB:Extended --era Run3 --python_filename ppTohToSS1SS2_SS1Tobb_SS2Toveve_DIGI_L1.py --no_exec -n 10
+# with command line options: step2.py --filein file:step1.root --fileout file:step2.root --mc --eventcontent FEVTDEBUG --datatier GEN-SIM-DIGI-L1 --conditions auto:phase1_2021_realistic --step DIGI:pdigi_valid,L1 --geometry DB:Extended --era Run3 --python_filename ppTohToSSTo4b_DIGI_L1.py --no_exec -n 10
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run3_cff import Run3
