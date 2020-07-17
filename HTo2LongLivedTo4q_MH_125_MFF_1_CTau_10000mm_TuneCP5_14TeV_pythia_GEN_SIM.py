@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: LLPToHadronicShowers/Generator/python/HTo2LongLivedTo4q_MH_125_MFF_1_CTau_10000mm_TuneCP5_14TeV_pythia8.py --fileout file:step1.root --mc --eventcontent FEVTDEBUG --datatier GEN-SIM --conditions auto:phase1_2021_realistic --beamspot Run3RoundOptics25ns13TeVLowSigmaZ --step LHE,GEN,SIM --geometry DB:Extended --era Run3 --python_filename HTo2LongLivedTo4q_MH_125_MFF_1_CTau_10000mm_TuneCP5_14TeV_pythia_GEN_SIM.py --no_exec -n 10
+# with command line options: LLPToHadronicShowers/Generator/python/HTo2LongLivedTo4q_MH_125_MFF_1_CTau_10000mm_TuneCP5_14TeV_pythia8.py --fileout file:step1.root --mc --eventcontent FEVTDEBUG,LHE --datatier GEN-SIM,LHE --conditions auto:phase1_2021_realistic --beamspot Run3RoundOptics25ns13TeVLowSigmaZ --step LHE,GEN,SIM --geometry DB:Extended --era Run3 --python_filename HTo2LongLivedTo4q_MH_125_MFF_1_CTau_10000mm_TuneCP5_14TeV_pythia_GEN_SIM.py --no_exec -n 10
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run3_cff import Run3
@@ -82,6 +82,16 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0)
 )
 
+process.LHEoutput = cms.OutputModule("PoolOutputModule",
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('LHE'),
+        filterName = cms.untracked.string('')
+    ),
+    fileName = cms.untracked.string('file:step1_inLHE.root'),
+    outputCommands = process.LHEEventContent.outputCommands,
+    splitLevel = cms.untracked.int32(0)
+)
+
 # Additional output definition
 
 # Other statements
@@ -110,7 +120,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
             '25:addChannel = 1 0.000000001 101 9000006 -9000006', 
             '25:onIfMatch = 9000006 -9000006', 
             '9000006:onMode = off', 
-            '9000006:onIfAny = 5'
+            '9000006:onIfAny = 1'
         ),
         pythia8CP5Settings = cms.vstring(
             'Tune:pp 14', 
@@ -191,9 +201,10 @@ process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
+process.LHEoutput_step = cms.EndPath(process.LHEoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.lhe_step,process.generation_step,process.genfiltersummary_step,process.simulation_step,process.endjob_step,process.FEVTDEBUGoutput_step)
+process.schedule = cms.Schedule(process.lhe_step,process.generation_step,process.genfiltersummary_step,process.simulation_step,process.endjob_step,process.FEVTDEBUGoutput_step,process.LHEoutput_step)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 # filter all path with the production filter sequence
