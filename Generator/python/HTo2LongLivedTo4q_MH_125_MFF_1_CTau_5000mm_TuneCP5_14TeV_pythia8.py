@@ -20,7 +20,7 @@ generator = cms.EDFilter("Pythia8HadronizerFilter",
             '25:addChannel = 1 0.000000001 101 9000006 -9000006',
             '25:onIfMatch = 9000006 -9000006',
             '9000006:onMode = off',
-            '9000006:onIfAny = 5'
+            '9000006:onIfAny = 1'
         ),
         pythia8CP5Settings = cms.vstring(
             'Tune:pp 14',
