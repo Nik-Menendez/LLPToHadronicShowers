@@ -173,3 +173,36 @@ ZeroBias_Run2018D = [
     crabInputDBSGlob,
     cmsRun2RAW
 ]
+
+central_signal = [
+    HTo2LongLivedTo4b_MH_1000_MFF_450_CTau_100000mm,
+    HTo2LongLivedTo4b_MH_1000_MFF_450_CTau_10000mm,
+    HTo2LongLivedTo4b_MH_125_MFF_12_CTau_9000mm,
+    HTo2LongLivedTo4b_MH_125_MFF_12_CTau_900mm,
+    HTo2LongLivedTo4b_MH_125_MFF_25_CTau_15000mm,
+    HTo2LongLivedTo4b_MH_125_MFF_25_CTau_1500mm,
+    HTo2LongLivedTo4b_MH_125_MFF_50_CTau_30000mm,
+    HTo2LongLivedTo4b_MH_125_MFF_50_CTau_3000mm,
+    HTo2LongLivedTo4b_MH_250_MFF_120_CTau_10000mm,
+    HTo2LongLivedTo4b_MH_250_MFF_120_CTau_1000mm,
+    HTo2LongLivedTo4b_MH_250_MFF_120_CTau_500mm,
+    HTo2LongLivedTo4b_MH_250_MFF_60_CTau_10000mm,
+    HTo2LongLivedTo4b_MH_250_MFF_60_CTau_1000mm,
+    HTo2LongLivedTo4b_MH_250_MFF_60_CTau_500mm,
+    HTo2LongLivedTo4b_MH_350_MFF_160_CTau_10000mm,
+    HTo2LongLivedTo4b_MH_350_MFF_160_CTau_1000mm,
+    HTo2LongLivedTo4b_MH_350_MFF_160_CTau_5000mm,
+    HTo2LongLivedTo4b_MH_350_MFF_80_CTau_10000mm,
+    HTo2LongLivedTo4b_MH_350_MFF_80_CTau_1000mm,
+    HTo2LongLivedTo4b_MH_350_MFF_80_CTau_500mm
+]
+
+private_signal = [
+    HTo2LongLivedTo4q_MH_125_MFF_1_CTau_10000mm,
+    HTo2LongLivedTo4q_MH_125_MFF_1_CTau_1000mm,
+    HTo2LongLivedTo4q_MH_125_MFF_1_CTau_5000mm
+]
+
+data = [
+    ZeroBias_Run2018D
+]
