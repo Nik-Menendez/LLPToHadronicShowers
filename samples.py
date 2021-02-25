@@ -167,9 +167,9 @@ HTo2LongLivedTo4q_MH_125_MFF_1_CTau_5000mm = [
     cmsRunDIGI
 ]
 
-ZeroBias_Run2018D = {
+ZeroBias_Run2018D = [
     "ZeroBias_Run2018D",
     '/ZeroBias/Run2018D-v1/RAW',
     crabInputDBSGlob,
     cmsRun2RAW
-}
+]
