@@ -10,20 +10,24 @@ chosenSample = []
 ## make a choice
 if options.sampleChoice == 0:
     chosenSample = central_signal
+    chosenSample = central_signal_redo_20210301
 
 if options.sampleChoice == 1:
     chosenSample = private_signal
+    chosenSample = private_signal_redo_20210301
 
 if options.sampleChoice == 2:
     chosenSample = data
+
+jobString = '_ANA_20210226_v2'
 
 if __name__ == '__main__':
     from CRABAPI.RawCommand import crabCommand
     for sample in chosenSample:
         cconfig = config()
-        cconfig.General.workArea = 'crab_projects'
+        cconfig.General.workArea = 'crab_projects' + jobString
         cconfig.General.transferLogs = True
-        cconfig.General.requestName = sample[0] + '_ANA_20210225_v3'
+        cconfig.General.requestName = sample[0] + jobString
         cconfig.JobType.pluginName = 'Analysis'
         cconfig.JobType.psetName = sample[3]
         cconfig.Site.storageSite = 'T3_US_FNALLPC'
