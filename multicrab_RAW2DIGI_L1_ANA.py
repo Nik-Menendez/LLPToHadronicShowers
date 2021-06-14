@@ -2,13 +2,19 @@ from CRABClient.UserUtilities import config
 from samples import *
 from samples_v2 import *
 from optparse import OptionParser
+import getpass
 
+## expert options
 parser = OptionParser()
 parser.add_option("-s", dest="sampleChoice",  type=int, default=0, help='0:central signal; 1: private signal; 2: data')
 parser.add_option("--jobLabel", dest="jobLabel",  type=str, default="_L1_ANA", help='A relevant label for this project')
 parser.add_option("--test", dest="test", default=False, help='just produce the crab configuration')
 (options,args) = parser.parse_args()
 
+## current user
+USER = getpass.getuser()
+
+## samples to run on
 chosenSample = chosenListWithSamples(options.sampleChoice)
 
 if __name__ == '__main__':
@@ -24,7 +30,7 @@ if __name__ == '__main__':
         cconfig.Site.storageSite = 'T3_US_FNALLPC'
         cconfig.Data.splitting = 'FileBased'
         cconfig.Data.unitsPerJob = 5
-        cconfig.Data.outLFNDirBase = '/store/user/dildick/'
+        cconfig.Data.outLFNDirBase = '/store/user/{}/'.format(USER)
         cconfig.Data.inputDataset = sample[1]
         cconfig.Data.inputDBS = sample[2]
         print cconfig
