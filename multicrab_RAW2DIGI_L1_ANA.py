@@ -1,35 +1,26 @@
 from CRABClient.UserUtilities import config
 from samples import *
+from samples_v2 import *
 from optparse import OptionParser
+
 parser = OptionParser()
 parser.add_option("-s", dest="sampleChoice",  type=int, default=0, help='0:central signal; 1: private signal; 2: data')
+parser.add_option("--jobLabel", dest="jobLabel",  type=str, default="_L1_ANA", help='A relevant label for this project')
+parser.add_option("--test", dest="test", default=False, help='just produce the crab configuration')
 (options,args) = parser.parse_args()
 
-chosenSample = []
-
-## make a choice
-if options.sampleChoice == 0:
-    chosenSample = central_signal
-    chosenSample = central_signal_redo_20210301
-
-if options.sampleChoice == 1:
-    chosenSample = private_signal
-    chosenSample = private_signal_redo_20210301
-
-if options.sampleChoice == 2:
-    chosenSample = data
-
-jobString = '_ANA_20210226_v2'
+chosenSample = chosenListWithSamples(options.sampleChoice)
 
 if __name__ == '__main__':
     from CRABAPI.RawCommand import crabCommand
     for sample in chosenSample:
         cconfig = config()
-        cconfig.General.workArea = 'crab_projects' + jobString
+        cconfig.General.workArea = 'crab_projects' + options.jobLabel
         cconfig.General.transferLogs = True
-        cconfig.General.requestName = sample[0] + jobString
+        cconfig.General.requestName = sample[0] + options.jobLabel
         cconfig.JobType.pluginName = 'Analysis'
         cconfig.JobType.psetName = sample[3]
+        cconfig.JobType.pyCfgParams = sample[4]
         cconfig.Site.storageSite = 'T3_US_FNALLPC'
         cconfig.Data.splitting = 'FileBased'
         cconfig.Data.unitsPerJob = 5
@@ -37,4 +28,5 @@ if __name__ == '__main__':
         cconfig.Data.inputDataset = sample[1]
         cconfig.Data.inputDBS = sample[2]
         print cconfig
-        crabCommand('submit', config = cconfig)
+        if not options.test:
+            crabCommand('submit', config = cconfig)
