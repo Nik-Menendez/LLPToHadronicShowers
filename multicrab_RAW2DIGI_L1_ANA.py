@@ -6,9 +6,9 @@ import getpass
 
 ## expert options
 parser = OptionParser()
-parser.add_option("-s", dest="sampleChoice",  type=int, default=0, help='0:central signal; 1: private signal; 2: data')
+parser.add_option("--sampleChoice", dest="sampleChoice",  type=int, default=0, help='0:central signal; 1: private signal; 2: data')
 parser.add_option("--jobLabel", dest="jobLabel",  type=str, default="_L1_ANA", help='A relevant label for this project')
-parser.add_option("--test", dest="test", default=False, help='just produce the crab configuration')
+parser.add_option("--test", dest="test", default=False, action='store_true', help='just produce the crab configuration')
 (options,args) = parser.parse_args()
 
 ## current user
@@ -35,4 +35,5 @@ if __name__ == '__main__':
         cconfig.Data.inputDBS = sample[2]
         print cconfig
         if not options.test:
+            print("Submit Jobs...")
             crabCommand('submit', config = cconfig)
