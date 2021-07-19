@@ -9,6 +9,9 @@ in_file = str(sys.argv[1])
 find_rate = False
 if "Data" in in_file: find_rate = True
 
+nllp1=2
+nllp2=2
+
 #print("Getting Efficiency for file "+in_file)
 #print("")
 if not find_rate:
@@ -24,18 +27,34 @@ else:
 def get_eff(llp_accept,csc_accept,csc_accept_loose,csc_accept_tight,emtf_accept,emtf_accept_loose,gmt_accept,csc_sector,emtf_sector):
 
 	# Create a mask for events in acceptance
-	llp_pass = np.array(ak.sum(llp_accept, axis=-1)>0)
+	if not find_rate: 
+		llp_pass = np.array(ak.sum(llp_accept, axis=-1)>=nllp1)
+		llp_pass2= np.array(ak.sum(llp_accept, axis=-1)>=nllp2)
+	else: llp_pass = True
 	#n_acc    = np.count_nonzero(llp_pass)
 	#if n_acc==0: return [0,0,0,0]
 
 	# Apppply mask to the csc, emtf, and gmt
-	csc_pass  = csc_accept[llp_pass]
-	emtf_pass = emtf_accept[llp_pass]
-	gmt_pass  = gmt_accept[llp_pass]
-	csc_pass_loose = csc_accept_loose[llp_pass]
-	csc_pass_tight = csc_accept_tight[llp_pass]
-	emtf_pass_loose = emtf_accept_loose[llp_pass]	
+	if not find_rate:
+		csc_pass  = csc_accept[llp_pass]
+		emtf_pass = emtf_accept[llp_pass]
+		gmt_pass  = gmt_accept[llp_pass]
+		csc_pass_loose = csc_accept_loose[llp_pass]
+		csc_pass_loose2= csc_accept_loose[llp_pass2]
+		csc_pass_tight = csc_accept_tight[llp_pass]
+		emtf_pass_loose = emtf_accept_loose[llp_pass2]
+		csc_avail = (csc_sector[llp_pass2][ak.sum(csc_pass_loose2,axis=1)>1])
+	else:
+		csc_pass  = csc_accept
+		emtf_pass = emtf_accept
+		gmt_pass  = gmt_accept
+		csc_pass_loose = csc_accept_loose
+		csc_pass_loose2= csc_accept_loose
+		csc_pass_tight = csc_accept_tight
+		emtf_pass_loose = emtf_accept_loose
+		csc_avail = (csc_sector[ak.sum(csc_pass_loose2,axis=1)>1])
 	n_acc = len(csc_pass)
+	n_acc2= len(csc_pass_loose2)
 
 	# Calculate efficiency for each
 	csc_eff  = np.count_nonzero(ak.sum(csc_pass,axis=1))/n_acc
@@ -43,36 +62,16 @@ def get_eff(llp_accept,csc_accept,csc_accept_loose,csc_accept_tight,emtf_accept,
 	gmt_eff  = np.count_nonzero((gmt_pass))/n_acc
 	csc_eff_loose  = np.count_nonzero(ak.sum(csc_pass_loose,axis=1))/n_acc
 	csc_eff_tight  = np.count_nonzero(ak.sum(csc_pass_tight,axis=1))/n_acc
-	emtf_eff_loose = np.count_nonzero(ak.sum(emtf_pass_loose,axis=1))/n_acc
-	#csc_eff_2loose = np.count_nonzero(np.array(ak.sum(csc_pass_loose,axis=1)>1))/n_acc
-	csc_avail = (csc_sector[llp_pass][ak.sum(csc_pass_loose,axis=1)>1])
+	emtf_eff_loose = np.count_nonzero(ak.sum(emtf_pass_loose,axis=1))/n_acc2
 	csc_2loose = np.zeros(len(csc_avail))
 	i=0
 	for x in csc_avail:
-		a = np.array(x[np.array(csc_pass_loose[ak.sum(csc_pass_loose,axis=1)>1][i]>0)])
+		a = np.array(x[np.array(csc_pass_loose2[ak.sum(csc_pass_loose2,axis=1)>1][i]>0)])
 		u, c = np.unique(a, return_counts=True)
 		if np.count_nonzero(c)>0: csc_2loose[i]=np.max(c)
 		else: csc_2loose[i]=0
 		i+=1
-	csc_eff_2loose = np.count_nonzero(csc_2loose>1)/n_acc
-	#if np.count_nonzero(csc_2loose>1) != np.count_nonzero(ak.sum(emtf_pass_loose,axis=1)): 
-	#	print("Mismatch")
-	#	#print(np.array((csc_2loose>1)))
-	#	#print(np.array((ak.sum(emtf_pass_loose[ak.sum(csc_pass_loose,axis=1)>1],axis=1)))>0)
-	#	index = np.where(np.equal(np.array((csc_2loose>1)),np.array((ak.sum(emtf_pass_loose[ak.sum(csc_pass_loose,axis=1)>1],axis=1)))>0)==False)[0]
-	#	print(index[0])
-	#	print("CSC Sectors with shower:")
-	#	print(csc_avail[index[0]])
-	#	print("CSC 1nom for the event:")
-	#	print(csc_pass[ak.sum(csc_pass_loose,axis=1)>1][index[0]])
-	#	print("CSC loose for the event:")
-	#	print(csc_pass_loose[ak.sum(csc_pass_loose,axis=1)>1][index[0]])
-	#	print("EMTF Sectors with shower:")
-	#	print(emtf_sector[llp_pass][ak.sum(csc_pass_loose,axis=1)>1][index[0]])
-	#	print("EMTF 2loose for the event:")
-	#	print(emtf_pass_loose[ak.sum(csc_pass_loose,axis=1)>1][index[0]])
-	#	print("EMTF 1nom for the event:")
-	#	print(emtf_pass[ak.sum(csc_pass_loose,axis=1)>1][index[0]])
+	csc_eff_2loose = np.count_nonzero(csc_2loose>1)/n_acc2
 
 	emtf_one = np.array(ak.sum(emtf_pass,axis=1)>0)
 	emtf_two = np.array(ak.sum(emtf_pass_loose,axis=1)>0)
@@ -83,18 +82,13 @@ def get_eff(llp_accept,csc_accept,csc_accept_loose,csc_accept_tight,emtf_accept,
 
 def lct_check(csc_accept,csc_chamber,lct_chamber,alct_chamber,clct_chamber):
 
-	csc_pass = np.array(ak.num(csc_accept,axis=1)>0)
+	csc_pass = np.array(ak.num(csc_accept,axis=1)>=nllp1)
 	if np.count_nonzero(csc_pass)==0: return [0,0,0,0]
 
 	csc_cham_pass  = csc_chamber[csc_pass]
 	lct_cham_pass  = lct_chamber[csc_pass]
 	alct_cham_pass = alct_chamber[csc_pass]
 	clct_cham_pass = clct_chamber[csc_pass]
-
-	#print(csc_cham_pass)
-	#print(lct_cham_pass)
-	#print(alct_cham_pass)
-	#print(clct_cham_pass)
 
 	lct_corr=0
 	alct_corr=0
@@ -136,5 +130,5 @@ alct_chamber = tree["csc_alct_chamber"].array()
 
 chams = lct_check(csc_accept,csc_chamber,lct_chamber,clct_chamber,alct_chamber)
 
-if not find_rate: print("%s,%s,%s,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%"%(HM,LLPM,CTau,effs[1]*100,effs[2]*100,effs[3]*100,effs[4]*100,effs[5]*100,effs[6]*100,effs[7]*100,effs[8]*100,chams[1],chams[2],chams[3]))
-else: print("%s,%s,%s,%.2f kHz,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHz,%.2f%%,%.2f%%,%.2f%%"%(HM,LLPM,CTau,effs[1]*30000,effs[2]*30000,effs[3]*30000,effs[4]*30000,effs[5]*30000,effs[6]*30000,effs[7]*30000,effs[8]*30000,chams[1],chams[2],chams[3]))
+if not find_rate: print("%s,%s,%s,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%"%(HM,LLPM,CTau,effs[1]*100,effs[2]*100,effs[3]*100,effs[4]*100,effs[5]*100,effs[6]*100,effs[7]*100,effs[8]*100,chams[2],chams[3]))
+else: print("%s,%s,%s,%.2f kHz,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHz,%.2f%%,%.2f%%"%(HM,LLPM,CTau,effs[1]*30000,effs[2]*30000,effs[3]*30000,effs[4]*30000,effs[5]*30000,effs[6]*30000,effs[7]*30000,effs[8]*30000,chams[2],chams[3]))
