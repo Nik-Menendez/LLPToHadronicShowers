@@ -9,8 +9,8 @@ in_file = str(sys.argv[1])
 find_rate = False
 if "Data" in in_file: find_rate = True
 
-nllp1=2
-nllp2=2
+nllp1=1
+nllp2=1
 
 #print("Getting Efficiency for file "+in_file)
 #print("")
@@ -82,7 +82,7 @@ def get_eff(llp_accept,csc_accept,csc_accept_loose,csc_accept_tight,emtf_accept,
 
 def lct_check(csc_accept,csc_chamber,lct_chamber,alct_chamber,clct_chamber):
 
-	csc_pass = np.array(ak.num(csc_accept,axis=1)>=nllp1)
+	csc_pass = np.array(ak.num(csc_accept,axis=1)>=1)
 	if np.count_nonzero(csc_pass)==0: return [0,0,0,0]
 
 	csc_cham_pass  = csc_chamber[csc_pass]
@@ -123,12 +123,33 @@ emtf_sector = tree["emtfshower_sector"].array()
 
 effs = get_eff(llp_accept,csc_accept,csc_accept_loose,csc_accept_tight,emtf_accept,emtf_accept_loose,gmt_accept,csc_sector,emtf_sector)
 
+csc_pass = np.array(ak.num(csc_accept,axis=1)>=1)
+csc_endcap  = tree["csc_shower_region"].array()
+lct_endcap  = tree["csc_lct_region"].array()
+clct_endcap = tree["csc_clct_region"].array()
+alct_endcap = tree["csc_alct_region"].array()
+
+csc_station  = tree["csc_shower_station"].array()
+lct_station  = tree["csc_lct_station"].array()
+clct_station = tree["csc_clct_station"].array()
+alct_station = tree["csc_alct_station"].array()
+
+csc_ring  = tree["csc_shower_ring"].array()
+lct_ring  = tree["csc_lct_ring"].array()
+clct_ring = tree["csc_clct_ring"].array()
+alct_ring = tree["csc_alct_ring"].array()
+
 csc_chamber  = tree["csc_shower_chamber"].array()
 lct_chamber  = tree["csc_lct_chamber"].array()
 clct_chamber = tree["csc_clct_chamber"].array()
 alct_chamber = tree["csc_alct_chamber"].array()
 
-chams = lct_check(csc_accept,csc_chamber,lct_chamber,clct_chamber,alct_chamber)
+csc_uCham = (csc_chamber+csc_ring*100+csc_station*1000)*csc_endcap
+lct_uCham = (lct_chamber+lct_ring*100+lct_station*1000)*lct_endcap
+alct_uCham = (alct_chamber+alct_ring*100+alct_station*1000)*alct_endcap
+clct_uCham = (clct_chamber+clct_ring*100+clct_station*1000)*clct_endcap
+
+chams = lct_check(csc_accept,csc_uCham,lct_uCham,clct_uCham,alct_uCham)
 
 if not find_rate: print("%s,%s,%s,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%"%(HM,LLPM,CTau,effs[1]*100,effs[2]*100,effs[3]*100,effs[4]*100,effs[5]*100,effs[6]*100,effs[7]*100,effs[8]*100,chams[2],chams[3]))
 else: print("%s,%s,%s,%.2f kHz,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHz,%.2f%%,%.2f%%"%(HM,LLPM,CTau,effs[1]*30000,effs[2]*30000,effs[3]*30000,effs[4]*30000,effs[5]*30000,effs[6]*30000,effs[7]*30000,effs[8]*30000,chams[2],chams[3]))
