@@ -30,7 +30,7 @@ if __name__ == '__main__':
         cconfig.Site.storageSite = 'T3_US_FNALLPC'
         cconfig.Data.splitting = 'FileBased'
         cconfig.Data.unitsPerJob = 5
-        cconfig.Data.outLFNDirBase = '/store/user/{}/'.format(USER)
+        cconfig.Data.outLFNDirBase = '/store/user/nimenend/Eff_Rate/'
         cconfig.Data.inputDataset = sample[1]
         cconfig.Data.inputDBS = sample[2]
         print cconfig
