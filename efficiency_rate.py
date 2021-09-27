@@ -71,6 +71,7 @@ def get_eff(llp_accept,csc_accept,csc_accept_loose,csc_accept_tight,emtf_accept,
 		if np.count_nonzero(c)>0: csc_2loose[i]=np.max(c)
 		else: csc_2loose[i]=0
 		i+=1
+	#csc_2loose = ak.sum(csc_pass_loose2,axis=1) #Allow 2 loose showers anywhere
 	csc_eff_2loose = np.count_nonzero(csc_2loose>1)/n_acc2
 
 	emtf_one = np.array(ak.sum(emtf_pass,axis=1)>0)
@@ -113,17 +114,17 @@ def lct_check(csc_accept,csc_chamber,lct_chamber,alct_chamber,clct_chamber):
 	return [total_cham,lct_eff,alct_eff,clct_eff]
 
 # Open file and tree
-tree = uproot4.open(in_file)["MuonNtuplizer"]["FlatTree"]
+tree = uproot4.open(in_file)["MuonNtuplizerAnod"]["FlatTree"]
 
 # Save relevant branches for Efficiency calculation into awkward arrays
 if not find_rate: llp_accept  = (tree["gen_llp_in_acceptance"].array())
 else: llp_accept = True
-csc_accept  = (tree["csc_shower_isNominalInTime"].array())
-emtf_accept = (tree["emtfshower_isOneNominalInTime"].array())
-gmt_accept  = (tree["l1mushower_isOneNominalInTime"].array())
-csc_accept_loose = (tree["csc_shower_isLooseInTime"].array())
-csc_accept_tight = (tree["csc_shower_isTightInTime"].array())
-emtf_accept_loose = (tree["emtfshower_isTwoLooseInTime"].array())
+csc_accept  = (tree["csc_shower_isNominalOutOfTime"].array())
+emtf_accept = (tree["emtfshower_isOneNominalOutOfTime"].array())
+gmt_accept  = (tree["l1mushower_isOneNominalOutOfTime"].array())
+csc_accept_loose = (tree["csc_shower_isLooseOutOfTime"].array())
+csc_accept_tight = (tree["csc_shower_isTightOutOfTime"].array())
+emtf_accept_loose = (tree["emtfshower_isTwoLooseOutOfTime"].array())
 csc_sector = (tree["csc_shower_sector"].array())
 emtf_sector = tree["emtfshower_sector"].array()
 
