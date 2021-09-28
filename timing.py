@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 in_dir = "/eos/uscms/store/user/nimenend/Eff_Rate/Final"
 samples = [
-"MH_1000_MFF_450_CTau_100000mm",
+#"MH_1000_MFF_450_CTau_100000mm",
 "MH_125_MFF_12_CTau_9000mm",
 "MH_125_MFF_12_CTau_900mm",
 "MH_125_MFF_1_CTau_10000mm",
@@ -16,26 +16,26 @@ samples = [
 "MH_125_MFF_25_CTau_1500mm",
 "MH_125_MFF_50_CTau_30000mm",
 "MH_125_MFF_50_CTau_3000mm",
-"MH_250_MFF_120_CTau_10000mm",
-#"MH_250_MFF_120_CTau_1000mm",
-"MH_250_MFF_120_CTau_500mm",
-"MH_250_MFF_60_CTau_10000mm",
-"MH_250_MFF_60_CTau_1000mm",
-"MH_250_MFF_60_CTau_500mm",
-"MH_350_MFF_160_CTau_10000mm",
-"MH_350_MFF_160_CTau_1000mm",
-"MH_350_MFF_160_CTau_500mm",
-"MH_350_MFF_80_CTau_10000mm",
-"MH_350_MFF_80_CTau_1000mm",
-"MH_350_MFF_80_CTau_500mm",
+#"MH_250_MFF_120_CTau_10000mm",
+##"MH_250_MFF_120_CTau_1000mm",
+#"MH_250_MFF_120_CTau_500mm",
+#"MH_250_MFF_60_CTau_10000mm",
+#"MH_250_MFF_60_CTau_1000mm",
+#"MH_250_MFF_60_CTau_500mm",
+#"MH_350_MFF_160_CTau_10000mm",
+#"MH_350_MFF_160_CTau_1000mm",
+#"MH_350_MFF_160_CTau_500mm",
+#"MH_350_MFF_80_CTau_10000mm",
+#"MH_350_MFF_80_CTau_1000mm",
+#"MH_350_MFF_80_CTau_500mm",
 ]
 
-vars_in = ["csc_comp_time","csc_comp_station","csc_comp_ring","csc_wire_time","csc_wire_station","csc_wire_ring"]
+vars_in = ["csc_comp_time","csc_comp_station","csc_comp_ring","csc_wire_time","csc_wire_station","csc_wire_ring","gen_llp_in_acceptance"]
 sectors = [11,12,13,21,22,31,32,41,42]
 #sectors = [41,42]
 nCham = {"ME11":72,"ME12":72,"ME13":72,"ME21":36,"ME22":72,"ME31":36,"ME32":72,"ME41":36,"ME42":72}
 
-times_comp, times_wire = {}, {}
+#times_comp, times_wire = {}, {}
 for me in tqdm(sectors):
 	times_comp, times_wire = {}, {}
 	for s in tqdm(samples,leave=False):
@@ -48,7 +48,12 @@ for me in tqdm(sectors):
 		sector_comp = data["csc_comp_station"]*10 + data["csc_comp_ring"]
 		sector_wire = data["csc_wire_station"]*10 + data["csc_wire_ring"]
 	
+		#acceptance = np.array(ak.sum(data["gen_llp_in_acceptance"], axis=-1)>=nllp1)
+		#print(data["gen_llp_in_acceptance"])
 		for ev in tqdm(range(len(data["csc_comp_time"])),leave=False):
+			#print(data["gen_llp_in_acceptance"][ev])
+			#print(np.count_nonzero(data["gen_llp_in_acceptance"][ev]))
+			if not (np.count_nonzero(data["gen_llp_in_acceptance"][ev])>=1): continue
 
 			times = (np.take(data["csc_comp_time"][ev],np.argwhere(sector_comp[ev]==me).flatten())).flatten().tolist()
 			times_comp[s]["ME%i"%(me)].extend(times)
@@ -57,20 +62,20 @@ for me in tqdm(sectors):
 	
 	for s in samples:
 		weights = np.ones(len(times_comp[s]["ME%i"%(me)]))*(1/nCham["ME%i"%(me)])
-		plt.hist(times_comp[s]["ME%i"%(me)],bins=16,range=[0,16],weights=weights,histtype='step',label=s)
+		plt.hist(times_comp[s]["ME%i"%(me)],bins=25,range=[0,25],weights=weights,density=True,histtype='step',label=s)
 	plt.xlabel("BX")
 	plt.ylabel("Number of Hits")
 	plt.title("BX of Hits for Comparator in ME%i"%(me))
-	#plt.legend(loc='best')
+	plt.legend(loc='best')
 	plt.savefig("Plots/BX_comp_ME%i.png"%(me))
 	plt.clf()
 
 	for s in samples:
 		weights = np.ones(len(times_wire[s]["ME%i"%(me)]))*(1/nCham["ME%i"%(me)])
-		plt.hist(times_wire[s]["ME%i"%(me)],bins=16,range=[0,16],weights=weights,histtype='step',label=s)
+		plt.hist(times_wire[s]["ME%i"%(me)],bins=25,range=[0,25],weights=weights,density=True,histtype='step',label=s)
 	plt.xlabel("BX")
 	plt.ylabel("Number of Hits")
 	plt.title("BX of Hits for Wire in ME%i"%(me))
-	#plt.legend(loc='best')
+	plt.legend(loc='best')
 	plt.savefig("Plots/BX_wire_ME%i.png"%(me))
 	plt.clf()
