@@ -30,9 +30,11 @@ sig_files = [
 "MH_350_MFF_80_CTau_10000mm",
 "MH_350_MFF_80_CTau_1000mm",
 "MH_350_MFF_80_CTau_500mm",
-#"ZeroBias_Data",
+"ZeroBias_Data",
 ]
 
+bx_comp_min, bx_comp_max = 6, 8
+bx_wire_min, bx_wire_max = 7, 9
 bx_target_comp, bx_target_wire = 7, 8
 MEs = [11, 12, 13, 21, 22, 31, 32, 41, 42]
 
@@ -47,9 +49,7 @@ for s in tqdm(sig_files):
 		t.GetEntry(ev)
 
 		if s!="ZeroBias_Data":
-			#print(t.gen_llp_in_acceptance)
 			if not t.gen_llp_in_acceptance: continue
-			#print(t.gen_llp_in_acceptance)
 			if len(t.gen_llp_in_acceptance) < 2:
 				if t.gen_llp_in_acceptance[0]==0: continue
 			else:
@@ -57,14 +57,14 @@ for s in tqdm(sig_files):
 	
 		chamber = {"comp": {11:[],12:[],13:[],21:[],22:[],31:[],32:[],41:[],42:[]}, "wire": {11:[],12:[],13:[],21:[],22:[],31:[],32:[],41:[],42:[]}}
 		for i in range(len(t.csc_comp_station)):
-			if t.csc_comp_time[i]!=bx_target_comp: continue
+			if t.csc_comp_time[i]<bx_comp_min or t.csc_comp_time[i]>bx_comp_max: continue
 
 			sector = (t.csc_comp_station[i]*10 + t.csc_comp_ring[i])
 			if sector not in MEs: continue
 			chamber["comp"][sector].append(t.csc_comp_region[i]*(t.csc_comp_station[i]*1000 + t.csc_comp_ring[i]*100 + t.csc_comp_chamber[i]))
 
 		for i in range(len(t.csc_wire_station)):
-			if t.csc_wire_time[i]!=bx_target_wire: continue
+			if t.csc_wire_time[i]<bx_wire_min or t.csc_wire_time[i]>bx_wire_max: continue
 
 			sector = (t.csc_wire_station[i]*10 + t.csc_wire_ring[i])
 			if sector not in MEs: continue
@@ -83,7 +83,7 @@ for s in tqdm(sig_files):
 			else:
 				maxes["wire"][me].append(0)
 
-	with open('output/maxHits_%s.p'%(s), 'wb') as handle:
+	with open('output/comp%i%i_wire%i%i/maxHits_%s.p'%(bx_comp_min,bx_comp_max,bx_wire_min,bx_wire_max,s), 'wb') as handle:
 		pickle.dump(maxes, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 		

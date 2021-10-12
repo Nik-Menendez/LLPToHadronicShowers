@@ -6,7 +6,7 @@ from tqdm import tqdm
 import pickle
 import matplotlib.pyplot as plt
 
-hard_cuts = False
+hard_cuts = True
 showerChoice = 1
 
 in_dir = "/eos/uscms/store/user/nimenend/Eff_Rate/Final/"
@@ -60,7 +60,7 @@ print("Opening signal samples:")
 first = True
 for s in tqdm(sig_files):
 
-	with open('output/maxHits_%s.p'%(s), 'rb') as handle:
+	with open('output/comp68_wire79/maxHits_%s.p'%(s), 'rb') as handle:
 		maxes = pickle.load(handle)
 
 	if first:
@@ -74,7 +74,7 @@ for s in tqdm(sig_files):
 		wire_sig = wire_sig.append(temp_wire)
 
 print("Opening background samples:")
-with open('output/maxHits_%s.p'%(bkg_files[0]), 'rb') as handle:	
+with open('output/comp68_wire79/maxHits_%s.p'%(bkg_files[0]), 'rb') as handle:	
 	maxes = pickle.load(handle)
 
 comp_bkg = pd.DataFrame(maxes["comp"])
@@ -109,7 +109,7 @@ comparator_delta = [
 ]
 
 comparator_width = [
-    1, 1, 1, 1, 1, 1, 1, 1, 1
+    0, 1, 1, 1, 1, 1, 1, 1, 1
 ]
 
 
@@ -122,8 +122,11 @@ wire_delta = [
 ]
 
 wire_width = [
-    1, 1, 1, 1, 1, 1, 1, 1, 1
+    0, 1, 1, 1, 1, 1, 1, 1, 1
 ]
+
+prev_nom_compXX = [100,55,20,35,29,35,25,40,30]
+prev_nom_wireXX = [100,55,20,35,29,35,25,40,30]
 
 ## 9 variables
 ## each variable scans 10 points
@@ -150,7 +153,7 @@ def calculate_comp_efficiency(T1, T2, T3, T4, T5, T6, T7, T8, T9):
                         (comp_sig['Ev_max_nComp_ME31'] > T6) |
                         (comp_sig['Ev_max_nComp_ME32'] > T7) |
                         (comp_sig['Ev_max_nComp_ME41'] > T8) |
-                        (comp_sig['Ev_max_nComp_ME41'] > T9)])
+                        (comp_sig['Ev_max_nComp_ME42'] > T9)])
 
 def calculate_comp_efficiency_norm(T1, T2, T3, T4, T5, T6, T7, T8, T9):
     return calculate_comp_efficiency(T1, T2, T3, T4, T5, T6, T7, T8, T9)/ comp_sig_tot
@@ -164,7 +167,7 @@ def calculate_wire_efficiency(T1, T2, T3, T4, T5, T6, T7, T8, T9):
                         (wire_sig['Ev_max_nWire_ME31'] > T6) |
                         (wire_sig['Ev_max_nWire_ME32'] > T7) |
                         (wire_sig['Ev_max_nWire_ME41'] > T8) |
-                        (wire_sig['Ev_max_nWire_ME41'] > T9)])
+                        (wire_sig['Ev_max_nWire_ME42'] > T9)])
 
 def calculate_wire_efficiency_norm(T1, T2, T3, T4, T5, T6, T7, T8, T9):
     return calculate_wire_efficiency(T1, T2, T3, T4, T5, T6, T7, T8, T9) / wire_sig_tot
@@ -261,17 +264,17 @@ for inc in (range(len(comp_chamber))):
                 best_cut = comp_limits[i]
 
     if hard_cuts:
-        #compXX = [98, 56, 30, 49, 42, 49, 35, 42, 31] #nominal
+        compXX = prev_nom_compXX #nominal
         #compXX = [149, 64, 21, 33, 34, 33, 25, 32, 31] #tight
-        compXX = [99, 57, 25, 45, 36, 43, 29, 43, 32] #loose
+        #compXX = [99, 57, 25, 45, 36, 43, 29, 43, 32] #loose
         best_cut = compXX[inc]
     print( "For " + comp_chamber[inc] + ":")
     print( "Best threshold > %i" %(best_cut))
     print( 'rate =', comp_rate[best_cut+1], 'kHz and efficiency =', comp_efficiency[best_cut+1], '% for threshold >', comp_limits[best_cut+1])
     print( "-----------------------------------------------------------------------")
-    compXX[inc] = best_cut+1
+    compXX[inc] = best_cut
 
-compXX[0] = 100 
+#compXX[0] = 100 
 efficiency_comp_final = len(comp_sig[(comp_sig['Ev_max_nComp_ME11'] > compXX[0]) |
                                      (comp_sig['Ev_max_nComp_ME12'] > compXX[1]) |
                                      (comp_sig['Ev_max_nComp_ME13'] > compXX[2]) |
@@ -280,7 +283,7 @@ efficiency_comp_final = len(comp_sig[(comp_sig['Ev_max_nComp_ME11'] > compXX[0])
                                      (comp_sig['Ev_max_nComp_ME31'] > compXX[5]) |
                                      (comp_sig['Ev_max_nComp_ME32'] > compXX[6]) |
                                      (comp_sig['Ev_max_nComp_ME41'] > compXX[7]) |
-                                     (comp_sig['Ev_max_nComp_ME41'] > compXX[8])])/comp_sig_tot*100
+                                     (comp_sig['Ev_max_nComp_ME42'] > compXX[8])])/comp_sig_tot*100
 
 rate_comp_final       = len(comp_bkg[(comp_bkg['Ev_max_nComp_ME11'] > compXX[0]) |
                                      (comp_bkg['Ev_max_nComp_ME12'] > compXX[1]) |
@@ -333,17 +336,17 @@ for inc in (range(len(wire_chamber))):
                 best_cut = wire_limits[i]
 
     if hard_cuts:
-        #wireXX = [104, 92, 32, 133, 83, 130, 74, 127, 88] #nominal
+        wireXX = prev_nom_wireXX #nominal
         #wireXX = [149, 108, 27,  75, 44,  83, 34,  83, 40] #tight
-        wireXX = [105, 93, 33, 134, 80, 118, 75, 128, 87] #loose
+        #wireXX = [105, 93, 33, 134, 80, 118, 75, 128, 87] #loose
         best_cut = wireXX[inc]
     print( "For " + wire_chamber[inc] + ":")
     print( "Best threshold > %i" %(best_cut))
     print( 'rate =', wire_rate[best_cut+1], 'kHz and efficiency =', wire_efficiency[best_cut+1], '% for threshold >', wire_limits[best_cut+1])
     print( "-----------------------------------------------------------------------")
-    wireXX[inc] = best_cut+1
+    wireXX[inc] = best_cut
 
-wireXX[0] = 140
+#wireXX[0] = 140
 efficiency_wire_final = len(wire_sig[(wire_sig['Ev_max_nWire_ME11'] > wireXX[0]) |
                                      (wire_sig['Ev_max_nWire_ME12'] > wireXX[1]) |
                                      (wire_sig['Ev_max_nWire_ME13'] > wireXX[2]) |
@@ -352,7 +355,7 @@ efficiency_wire_final = len(wire_sig[(wire_sig['Ev_max_nWire_ME11'] > wireXX[0])
                                      (wire_sig['Ev_max_nWire_ME31'] > wireXX[5]) |
                                      (wire_sig['Ev_max_nWire_ME32'] > wireXX[6]) |
                                      (wire_sig['Ev_max_nWire_ME41'] > wireXX[7]) |
-                                     (wire_sig['Ev_max_nWire_ME41'] > wireXX[8])])/wire_sig_tot*100
+                                     (wire_sig['Ev_max_nWire_ME42'] > wireXX[8])])/wire_sig_tot*100
 
 rate_wire_final       = len(wire_bkg[(wire_bkg['Ev_max_nWire_ME11'] > wireXX[0]) |
                                      (wire_bkg['Ev_max_nWire_ME12'] > wireXX[1]) |
@@ -381,12 +384,12 @@ print( "Number of events that pass:", rate_num_final, " out of", wire_bkg_tot)
 print("")
 
 if hard_cuts:
-    #compXX = [ 98, 56, 30, 49, 42, 49, 35, 42, 31] #nominal
+    compXX = prev_nom_compXX #nominal
     #compXX = [149, 64, 21, 33, 34, 33, 25, 32, 31] #tight
-    compXX = [99, 57, 25, 45, 36, 43, 29, 43, 32] #loose
-    #wireXX = [104,  92, 32, 133, 83, 130, 74, 127, 88] #nominal
+    #compXX = [99, 57, 25, 45, 36, 43, 29, 43, 32] #loose
+    wireXX = prev_nom_wireXX #nominal
     #wireXX = [149, 108, 27,  75, 44,  83, 34,  83, 40] #tight
-    wireXX = [105, 93, 33, 134, 80, 118, 75, 128, 87] #loose
+    #wireXX = [105, 93, 33, 134, 80, 118, 75, 128, 87] #loose
 
 
 print( "Guess Comparator Thresholds:")
