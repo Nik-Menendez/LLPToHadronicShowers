@@ -31,16 +31,11 @@ samples = [
 "MH_350_MFF_80_CTau_500mm",
 ]
 
-vars_in = ["csc_comp_time","csc_comp_station","csc_comp_ring","csc_wire_time","csc_wire_station","csc_wire_ring","gen_llp_in_acceptance"]
+vars_in = ["csc_comp_time","csc_comp_station","csc_comp_ring","csc_wire_time","csc_wire_station","csc_wire_ring","gen_llp_in_acceptance","csc_comp_layer","csc_wire_layer"]
 sectors = [11,12,13,21,22,31,32,41,42]
 #sectors = [41,42]
 nCham = {"ME11":72,"ME12":72,"ME13":72,"ME21":36,"ME22":72,"ME31":36,"ME32":72,"ME41":36,"ME42":72}
 
-file_comp = open("comp_bins.txt","w")
-file_comp.close()
-file_wire = open("wire_bins.txt","w")
-file_wire.close()
-#times_comp, times_wire = {}, {}
 for me in tqdm(sectors):
 	times_comp, times_wire = {}, {}
 	for s in tqdm(samples,leave=False):
@@ -61,44 +56,34 @@ for me in tqdm(sectors):
 			times = (np.take(data["csc_wire_time"][ev],np.argwhere(sector_wire[ev]==me).flatten())).flatten().tolist()
 			times_wire[s]["ME%i"%(me)].extend(times)
 
-	file_comp = open("comp_bins.txt","a")
-	file_comp.write("\n")
-	file_comp.write("ME%i"%(me))	
+			
+
 	for s in samples:
 		weights = np.ones(len(times_comp[s]["ME%i"%(me)]))*(1/nCham["ME%i"%(me)])
 		times_comp[s]["weights"] = weights
 		(n,bins,patches) = plt.hist(times_comp[s]["ME%i"%(me)],bins=25,range=[0,25],weights=weights,density=False,histtype='step',label=s)
 		with open('Plots/pickle/%s_ME%i_comp.p'%(s,me),'wb') as handle:
 			pickle.dump(times_comp,handle)
-		file_comp.write("%s, "%(s))
 		for x in n:
 			file_comp.write("%.5f, "%(x))
-		file_comp.write("\n")
 	plt.xlabel("BX")
 	plt.ylabel("Number of Hits")
 	plt.title("BX of Hits for Comparator in ME%i"%(me))
 	#plt.legend(loc='best')
 	plt.savefig("Plots/BX_comp_ME%i.png"%(me))
 	plt.clf()
-	file_comp.close()
 
-	file_wire = open("wire_bins.txt","a")
-	file_wire.write("\n")
-	file_wire.write("ME%i"%(me))
 	for s in samples:
 		weights = np.ones(len(times_wire[s]["ME%i"%(me)]))*(1/nCham["ME%i"%(me)])
 		times_wire[s]["weights"] = weights
 		(n,bins,patches) = plt.hist(times_wire[s]["ME%i"%(me)],bins=25,range=[0,25],weights=weights,density=False,histtype='step',label=s)
 		with open('Plots/pickle/%s_ME%i_wire.p'%(s,me),'wb') as handle:
 			pickle.dump(times_wire,handle)
-		file_wire.write("%s, "%(s))
 		for x in n:
 			file_wire.write("%.5f, "%(x))
-		file_wire.write("\n")
 	plt.xlabel("BX")
 	plt.ylabel("Number of Hits")
 	plt.title("BX of Hits for Wire in ME%i"%(me))
 	#plt.legend(loc='best')
 	plt.savefig("Plots/BX_wire_ME%i.png"%(me))
 	plt.clf()
-	file_wire.close()
