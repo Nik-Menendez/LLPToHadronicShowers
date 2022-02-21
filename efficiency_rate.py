@@ -6,6 +6,7 @@ import sys
 from collections import Counter
 
 in_file = str(sys.argv[1])
+#in_file = "root://cmsxrootd.fnal.gov/%s"%(in_file[10:])
 find_rate = False
 if "Data" in in_file: find_rate = True
 
@@ -41,7 +42,7 @@ def get_eff(llp_accept,csc_accept,csc_accept_loose,csc_accept_tight,emtf_accept,
 		gmt_pass  = gmt_accept[llp_pass]
 		csc_pass_loose = csc_accept_loose[llp_pass]
 		csc_pass_loose2= csc_accept_loose[llp_pass2]
-		#csc_pass_tight = csc_accept_tight[llp_pass]
+		csc_pass_tight = csc_accept_tight[llp_pass]
 		emtf_pass_loose = emtf_accept_loose[llp_pass2]
 		csc_avail = (csc_sector[llp_pass2][ak.sum(csc_pass_loose2,axis=1)>1])
 	else:
@@ -50,7 +51,7 @@ def get_eff(llp_accept,csc_accept,csc_accept_loose,csc_accept_tight,emtf_accept,
 		gmt_pass  = gmt_accept
 		csc_pass_loose = csc_accept_loose
 		csc_pass_loose2= csc_accept_loose
-		#csc_pass_tight = csc_accept_tight
+		csc_pass_tight = csc_accept_tight
 		emtf_pass_loose = emtf_accept_loose
 		csc_avail = (csc_sector[ak.sum(csc_pass_loose2,axis=1)>1])
 	n_acc = len(csc_pass)
@@ -61,7 +62,7 @@ def get_eff(llp_accept,csc_accept,csc_accept_loose,csc_accept_tight,emtf_accept,
 	emtf_eff = np.count_nonzero(ak.sum(emtf_pass,axis=1))/n_acc
 	gmt_eff  = np.count_nonzero((gmt_pass))/n_acc
 	csc_eff_loose  = np.count_nonzero(ak.sum(csc_pass_loose,axis=1))/n_acc
-	#csc_eff_tight  = np.count_nonzero(ak.sum(csc_pass_tight,axis=1))/n_acc
+	csc_eff_tight  = np.count_nonzero(ak.sum(csc_pass_tight,axis=1))/n_acc
 	emtf_eff_loose = np.count_nonzero(ak.sum(emtf_pass_loose,axis=1))/n_acc2
 	csc_2loose = np.zeros(len(csc_avail))
 	i=0
@@ -79,43 +80,11 @@ def get_eff(llp_accept,csc_accept,csc_accept_loose,csc_accept_tight,emtf_accept,
 	emtf_or = emtf_one | emtf_two
 	emtf_eff_or = np.count_nonzero(emtf_or)/n_acc
 
-	#return [n_acc,csc_eff_loose,csc_eff,csc_eff_tight,csc_eff_2loose,emtf_eff,emtf_eff_loose,emtf_eff_or,gmt_eff]
-	return [n_acc,csc_eff_loose,csc_eff,csc_eff_2loose,emtf_eff,emtf_eff_loose,emtf_eff_or,gmt_eff]
-
-#def lct_check(csc_accept,csc_chamber,lct_chamber,alct_chamber,clct_chamber):
-#
-#	csc_pass = np.array(ak.num(csc_accept,axis=1)>=1)
-#	if np.count_nonzero(csc_pass)==0: return [0,0,0,0]
-#
-#	csc_cham_pass  = csc_chamber[csc_pass]
-#	lct_cham_pass  = lct_chamber[csc_pass]
-#	alct_cham_pass = alct_chamber[csc_pass]
-#	clct_cham_pass = clct_chamber[csc_pass]
-#
-#	lct_corr=0
-#	alct_corr=0
-#	clct_corr=0
-#	for i in range(len(csc_cham_pass)):
-#		for j in range(len(csc_cham_pass[i])):
-#			if csc_cham_pass[i][j] in lct_cham_pass[i]:  lct_corr+=1
-#			if csc_cham_pass[i][j] in alct_cham_pass[i]: 
-#				alct_corr+=1
-#			#else:
-#			#	print("Shower chambers: ",end='')
-#			#	print(csc_cham_pass[i])
-#			#	print("ALCT chambers:   ",end='')
-#			#	print(alct_cham_pass[i])
-#			if csc_cham_pass[i][j] in clct_cham_pass[i]: clct_corr+=1
-#
-#	total_cham = ak.sum(ak.num(csc_cham_pass))
-#	lct_eff = lct_corr/total_cham*100
-#	alct_eff = alct_corr/total_cham*100
-#	clct_eff = clct_corr/total_cham*100
-#
-#	return [total_cham,lct_eff,alct_eff,clct_eff]
+	return [n_acc,csc_eff_loose,csc_eff,csc_eff_tight,csc_eff_2loose,emtf_eff,emtf_eff_loose,emtf_eff_or,gmt_eff]
+	#return [n_acc,csc_eff_loose,csc_eff,csc_eff_2loose,emtf_eff,emtf_eff_loose,emtf_eff_or,gmt_eff]
 
 # Open file and tree
-tree = uproot4.open(in_file)["MuonNtuplizerCath"]["FlatTree"]
+tree = uproot4.open(in_file)["MuonNtuplizerAnod"]["FlatTree"]
 
 # Save relevant branches for Efficiency calculation into awkward arrays
 if not find_rate: llp_accept  = (tree["gen_llp_in_acceptance"].array())
@@ -135,44 +104,6 @@ effs = get_eff(llp_accept,csc_accept,csc_accept_loose,csc_accept_tight,emtf_acce
 # Free up Memory
 llp_accept, emtf_accept, gmt_accept, csc_accept_loose, csc_accept_tight, emtf_accept_loose, csc_sector, emtf_sector = None, None, None, None, None, None, None, None
 
-## Save relevant branches for LCT Correlation into awkward arrays
-#csc_pass = np.array(ak.num(csc_accept,axis=1)>=1)
-#
-#csc_endcap  = tree["csc_shower_region"].array()
-#csc_station  = tree["csc_shower_station"].array()
-#csc_ring  = tree["csc_shower_ring"].array()
-#csc_chamber  = tree["csc_shower_chamber"].array()
-#csc_uCham = (csc_chamber+csc_ring*100+csc_station*1000)*csc_endcap
-#csc_endcap, csc_station, csc_ring, csc_chamber = None, None, None, None
-#
-#lct_endcap  = tree["csc_lct_region"].array()
-#lct_station  = tree["csc_lct_station"].array()
-#lct_ring  = tree["csc_lct_ring"].array()
-#lct_chamber  = tree["csc_lct_chamber"].array()
-#lct_uCham = (lct_chamber+lct_ring*100+lct_station*1000)*lct_endcap
-#lct_endcap, lct_station, lct_ring, lct_chamber = None, None, None, None
-#
-#clct_endcap = tree["csc_clct_region"].array()
-#clct_station = tree["csc_clct_station"].array()
-#clct_ring = tree["csc_clct_ring"].array()
-#clct_chamber = tree["csc_clct_chamber"].array()
-#clct_uCham = (clct_chamber+clct_ring*100+clct_station*1000)*clct_endcap
-#clct_endcap, clct_station, clct_ring, clct_chamber = None, None, None, None
-#
-#alct_endcap = tree["csc_alct_region"].array()
-#alct_station = tree["csc_alct_station"].array()
-#alct_ring = tree["csc_alct_ring"].array()
-#alct_chamber = tree["csc_alct_chamber"].array()
-#alct_uCham = (alct_chamber+alct_ring*100+alct_station*1000)*alct_endcap
-#alct_endcap, alct_station, alct_ring, alct_chamber = None, None, None, None
-#
-## Calculate LCT Correlation
-#chams = lct_check(csc_accept,csc_uCham,lct_uCham,clct_uCham,alct_uCham)
-#
-## Print results
-#if not find_rate: print("%s,%s,%s,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%"%(HM,LLPM,CTau,effs[1]*100,effs[2]*100,effs[3]*100,effs[4]*100,effs[5]*100,effs[6]*100,effs[7]*100,effs[8]*100,chams[2],chams[3]))
-#else: print("%s,%s,%s,%.2f kHz,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHz,%.2f%%,%.2f%%"%(HM,LLPM,CTau,effs[1]*30000,effs[2]*30000,effs[3]*30000,effs[4]*30000,effs[5]*30000,effs[6]*30000,effs[7]*30000,effs[8]*30000,chams[2],chams[3]))
-
 # Print results
-if not find_rate: print("%s,%s,%s,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%"%(HM,LLPM,CTau,effs[1]*100,effs[2]*100,effs[3]*100,effs[4]*100,effs[5]*100,effs[6]*100))
-else: print("%s,%s,%s,%.2f kHz,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHZ"%(HM,LLPM,CTau,effs[1]*30000,effs[2]*30000,effs[3]*30000,effs[4]*30000,effs[5]*30000,effs[6]*30000))
+if not find_rate: print("%s,%s,%s,%i,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%"%(HM,LLPM,CTau,effs[0],effs[1]*100,effs[2]*100,effs[3]*100,effs[4]*100,effs[5]*100,effs[6]*100,effs[7]*100))
+else: print("%s,%s,%s,%i,%.2f kHz,%.2f kHZ,%.2f kHz,%.2f kHZ,%.2f kHZ,%.2f kHZ,%.2f kHZ"%(HM,LLPM,CTau,effs[0],effs[1]*30000,effs[2]*30000,effs[3]*30000,effs[4]*30000,effs[5]*30000,effs[6]*30000,effs[7]*30000))

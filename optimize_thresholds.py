@@ -6,10 +6,10 @@ from tqdm import tqdm
 import pickle
 import matplotlib.pyplot as plt
 
-hard_cuts = True
+hard_cuts = False
 showerChoice = 1
 
-in_dir = "/eos/uscms/store/user/nimenend/Eff_Rate/Final/"
+in_dir = "comp68_wire88"
 bkg_files = ["ZeroBias_Data"]
 sig_files = [
 "MH_1000_MFF_450_CTau_100000mm",
@@ -60,7 +60,7 @@ print("Opening signal samples:")
 first = True
 for s in tqdm(sig_files):
 
-	with open('output/comp68_wire79/maxHits_%s.p'%(s), 'rb') as handle:
+	with open('output/%s/maxHits_%s.p'%(in_dir,s), 'rb') as handle:
 		maxes = pickle.load(handle)
 
 	if first:
@@ -74,7 +74,7 @@ for s in tqdm(sig_files):
 		wire_sig = wire_sig.append(temp_wire)
 
 print("Opening background samples:")
-with open('output/comp68_wire79/maxHits_%s.p'%(bkg_files[0]), 'rb') as handle:	
+with open('output/%s/maxHits_%s.p'%(in_dir,bkg_files[0]), 'rb') as handle:	
 	maxes = pickle.load(handle)
 
 comp_bkg = pd.DataFrame(maxes["comp"])
@@ -105,7 +105,7 @@ comparator_seed = [
 ]
 
 comparator_delta = [
-    1, 5, 5, 5, 5, 5, 5, 5, 5
+    1, 2, 2, 2, 2, 2, 2, 2, 2
 ]
 
 comparator_width = [
@@ -232,7 +232,7 @@ elif showerChoice == 2:
 r = [r1, r2, r2, r1, r2, r1, r2, r1, r2]
 
 l1=.15
-l2=.18
+l2=.20
 rmin = [0.0,.02,.02,.02,.02,.02,.02,.02,.02]
 rmax_t = [.02, l2, l2, l1, l2, l1, l2, l1, l2]
 rmax = [i*1 for i in rmax_t]
@@ -274,7 +274,7 @@ for inc in (range(len(comp_chamber))):
     print( "-----------------------------------------------------------------------")
     compXX[inc] = best_cut
 
-#compXX[0] = 100 
+compXX[0] = 100 
 efficiency_comp_final = len(comp_sig[(comp_sig['Ev_max_nComp_ME11'] > compXX[0]) |
                                      (comp_sig['Ev_max_nComp_ME12'] > compXX[1]) |
                                      (comp_sig['Ev_max_nComp_ME13'] > compXX[2]) |
@@ -342,11 +342,11 @@ for inc in (range(len(wire_chamber))):
         best_cut = wireXX[inc]
     print( "For " + wire_chamber[inc] + ":")
     print( "Best threshold > %i" %(best_cut))
-    print( 'rate =', wire_rate[best_cut+1], 'kHz and efficiency =', wire_efficiency[best_cut+1], '% for threshold >', wire_limits[best_cut+1])
+    print( 'rate =', wire_rate[best_cut], 'kHz and efficiency =', wire_efficiency[best_cut], '% for threshold >', wire_limits[best_cut])
     print( "-----------------------------------------------------------------------")
     wireXX[inc] = best_cut
 
-#wireXX[0] = 140
+wireXX[0] = 140
 efficiency_wire_final = len(wire_sig[(wire_sig['Ev_max_nWire_ME11'] > wireXX[0]) |
                                      (wire_sig['Ev_max_nWire_ME12'] > wireXX[1]) |
                                      (wire_sig['Ev_max_nWire_ME13'] > wireXX[2]) |
@@ -427,7 +427,7 @@ for i1 in tqdm(generate_wire_range(0)):
                                     idx += 1
                                     #comp_rate = calculate_comp_rate_norm(i1, i2, i3, i4, i5, i6, i7, i8, i9)
                                     wire_rate = calculate_wire_rate_norm(i1, i2, i3, i4, i5, i6, i7, i8, i9)
-                                    if (0.4 < wire_rate and wire_rate < 0.75):
+                                    if (0.4 < wire_rate and wire_rate < 1.5):
                                         wire_eff = calculate_wire_efficiency_norm(i1, i2, i3, i4, i5, i6, i7, i8, i9)
                                         if wire_eff > best_eff:
                                             best_eff = wire_eff
@@ -455,7 +455,7 @@ for i1 in tqdm(generate_range(0)):
                                     idx += 1
                                     comp_rate = calculate_comp_rate_norm(i1, i2, i3, i4, i5, i6, i7, i8, i9)
                                     #wire_rate = calculate_wire_rate_norm(i1, i2, i3, i4, i5, i6, i7, i8, i9)
-                                    if (0.4 < comp_rate and comp_rate < 0.75):
+                                    if (0.4 < comp_rate and comp_rate < 1.5):
                                         comp_eff = calculate_comp_efficiency_norm(i1, i2, i3, i4, i5, i6, i7, i8, i9)
                                         if comp_eff > best_eff:
                                             best_eff = comp_eff

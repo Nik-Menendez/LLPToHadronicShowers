@@ -1,19 +1,17 @@
 from __future__ import division
 import numpy as np
-#import uproot4
 from ROOT import TFile, TTree
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import pickle
-from numba import njit
-import time
 from collections import Counter
 
-in_dir = "/eos/uscms/store/user/nimenend/Eff_Rate/Final"
+in_dir = "root://cmsxrootd.fnal.gov//store/user/nimenend/Eff_Rate/Final"
+#in_dir = "root://cmseos.fnal.gov//store/user/nimenend/Eff_Rate/Final"
 samples = [
-#"MH_1000_MFF_450_CTau_100000mm",
-#"MH_125_MFF_12_CTau_9000mm",
-#"MH_125_MFF_12_CTau_900mm",
+"MH_1000_MFF_450_CTau_100000mm",
+"MH_125_MFF_12_CTau_9000mm",
+"MH_125_MFF_12_CTau_900mm",
 "MH_125_MFF_1_CTau_10000mm",
 #"MH_125_MFF_1_CTau_1000mm",        
 "MH_125_MFF_1_CTau_5000mm",
@@ -26,7 +24,7 @@ samples = [
 "MH_250_MFF_120_CTau_500mm",
 "MH_250_MFF_60_CTau_10000mm",
 "MH_250_MFF_60_CTau_1000mm",
-"MH_250_MFF_60_CTau_500mm",
+#"MH_250_MFF_60_CTau_500mm",
 "MH_350_MFF_160_CTau_10000mm",
 "MH_350_MFF_160_CTau_1000mm",
 "MH_350_MFF_160_CTau_500mm",
@@ -43,11 +41,11 @@ def get_nLayers2(sector, csc_layer, csc_time, BX):
 	if len(BX)>1:
 		sector = sector[(csc_time==BX[0])|(csc_time==BX[1])|(csc_time==BX[2])]
 		layer = csc_layer[(csc_time==BX[0])|(csc_time==BX[1])|(csc_time==BX[2])]
-		thresh = {11:100,12:55,13:20,21:35,22:29,31:35,32:25,41:40,42:30}
+		thresh = {11:100,12:38,13:11,21:33,22:20,31:31,32:18,41:43,42:22}
 	else:
 		sector = sector[csc_time==BX[0]]
 		layer = csc_layer[csc_time==BX[0]]
-		thresh = {11:140,12:56,13:22,21:55,22:34,31:74,32:27,41:86,42:67}
+		thresh = {11:140,12:41,13:12,21:56,22:18,31:55,32:16,41:62,42:27}
 
 	ME = temp = np.abs(sector/100).astype(np.int_)
 	shower = Counter(sector)
@@ -80,21 +78,20 @@ vars_in = ["csc_comp_time","csc_comp_station","csc_comp_ring","csc_comp_layer","
 sectors = [11,12,13,21,22,31,32,41,42]
 #sectors = [41,42]
 nCham = {"ME11":72,"ME12":72,"ME13":72,"ME21":36,"ME22":72,"ME31":36,"ME32":72,"ME41":36,"ME42":72}
-comp_BX = [6,7,8]
+comp_BX = [7,7,7]
 wire_BX = [8]
 
 for s in tqdm(samples):
 	layer_comp, layer_wire = {}, {}
 	layer_comp[s] = {'ME11':[],'ME12':[],'ME13':[],'ME21':[],'ME22':[],'ME31':[],'ME32':[],'ME41':[],'ME42':[]}
 	layer_wire[s] = {'ME11':[],'ME12':[],'ME13':[],'ME21':[],'ME22':[],'ME31':[],'ME32':[],'ME41':[],'ME42':[]}
-	File = TFile("%s/%s.root"%(in_dir,s))
+	File = TFile.Open("%s/%s.root"%(in_dir,s))
 	t = File.Get("MuonNtuplizer/FlatTree")
 	nEntries = t.GetEntries()
 	if "Data" in s:
-		nEntries = 100000
+		nEntries = 5000000
 	else:
 		vars_in = vars_in + ["gen_llp_in_acceptance"]
-	#nEntries = 1000
 
 	t.SetBranchStatus("*",0)
 	for var in vars_in:
@@ -104,7 +101,11 @@ for s in tqdm(samples):
 		t.GetEntry(ev)
 
 		if "Data" not in s:
-			if not (np.count_nonzero(t.gen_llp_in_acceptance)>=1): continue
+			acceptance = np.empty(len(t.gen_llp_in_acceptance))
+			for i in range(len(acceptance)):
+				acceptance[i] = t.gen_llp_in_acceptance[i]
+			acceptance = np.asarray(acceptance)
+			if not (np.count_nonzero(acceptance)>=1): continue
 
 		csc_station, csc_ring, csc_chamber, csc_region = np.empty(len(t.csc_comp_station)), np.empty(len(t.csc_comp_ring)), np.empty(len(t.csc_comp_chamber)), np.empty(len(t.csc_comp_region))
 		csc_time, csc_layer = np.empty(len(t.csc_comp_time)), np.empty(len(t.csc_comp_time))

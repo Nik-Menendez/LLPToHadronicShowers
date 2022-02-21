@@ -28,8 +28,8 @@ if __name__ == '__main__':
         cconfig.JobType.psetName = sample[3]
         cconfig.JobType.pyCfgParams = sample[4]
         cconfig.Site.storageSite = 'T3_US_FNALLPC'
-        cconfig.Data.splitting = 'FileBased'
-        cconfig.Data.unitsPerJob = 5
+        cconfig.Data.splitting = 'Automatic'
+        #cconfig.Data.unitsPerJob = 5
         cconfig.Data.outLFNDirBase = '/store/user/nimenend/Eff_Rate/'
         cconfig.Data.inputDataset = sample[1]
         cconfig.Data.inputDBS = sample[2]
