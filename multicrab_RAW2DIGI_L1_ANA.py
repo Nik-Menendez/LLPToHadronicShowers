@@ -27,6 +27,7 @@ if __name__ == '__main__':
         cconfig.JobType.pluginName = 'Analysis'
         cconfig.JobType.psetName = sample[3]
         cconfig.JobType.pyCfgParams = sample[4]
+	cconfig.JobType.maxMemoryMB = 5000
         cconfig.Site.storageSite = 'T3_US_FNALLPC'
         cconfig.Data.splitting = 'Automatic'
         #cconfig.Data.unitsPerJob = 5
